@@ -1,0 +1,3 @@
+[console_scripts]
+quantalon = quantalon.app:main
+
