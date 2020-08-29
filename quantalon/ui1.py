@@ -111,8 +111,8 @@ class Ui_MainWindow(object):
 
             self.region = pg.LinearRegionItem()
             self.region.setZValue(10)
-            self.region.setRegion((0, len(self.ohlc)))
             self.region.sigRegionChanged.connect(self.update)
+
             self.graphWidget.addItem(self.region, ignoreBounds=True)
 
         except:
@@ -123,30 +123,35 @@ class Ui_MainWindow(object):
     def load_indicator(self):
         print("load_indicator")
 
-        self.ohlc = self.ohlc.rename(columns={"Close":"close"})
+        try:
+            self.ohlc = self.ohlc.rename(columns={"Close":"close"})
 
-        selection = self.indicatorBox.currentText()
+            selection = self.indicatorBox.currentText()
 
-        transformed_data = getattr(TA, selection)(self.ohlc, period=14)
-        transformed_data.dropna(inplace=True)
+            transformed_data = getattr(TA, selection)(self.ohlc, period=14)
+            transformed_data.dropna(inplace=True)
 
-        time = transformed_data.index
-        price = np.array(transformed_data)
+            time = transformed_data.index
+            price = np.array(transformed_data)
 
-        #self.plot(time, price, selection, (0, 255, 0))
+            #self.plot(time, price, selection, (0, 255, 0))
 
-        graphWidget2 = pg.PlotWidget(self.centralwidget)
-        graphWidget2.setBackground('w')
-        graphWidget2.setTitle(selection, color='k', size="15pt")
-        graphWidget2.showGrid(x=True, y=True)
-        graphWidget2.enableAutoRange(axis='y')
-        graphWidget2.setMouseEnabled(x=True, y=False)
-        self.verticalLayout_2.addWidget(graphWidget2)
-        
-        pen=pg.mkPen(color=(0, 255, 0))
-        graphWidget2.plot(time, price, name=selection, pen=pen)
-        
-        self.graphs.append(graphWidget2)
+            graphWidget2 = pg.PlotWidget(self.centralwidget)
+            graphWidget2.setBackground('w')
+            graphWidget2.setTitle(selection, color='k', size="15pt")
+            graphWidget2.showGrid(x=True, y=True)
+            graphWidget2.enableAutoRange(axis='y')
+            graphWidget2.setMouseEnabled(x=True, y=False)
+            self.verticalLayout_2.addWidget(graphWidget2)
+            
+            pen=pg.mkPen(color=(0, 255, 0), width=2.5)
+            graphWidget2.plot(time, price, name=selection, pen=pen)
+            
+            self.graphs.append(graphWidget2)
+            self.update()
+
+        except:
+            print("failed")
 
     def plot(self, x, y, plotname, color):
         pen=pg.mkPen(color=color)
@@ -156,7 +161,9 @@ class Ui_MainWindow(object):
         self.region.setZValue(10)
         minX, maxX = self.region.getRegion()
         print(minX, maxX)
-        self.graphs[0].setXRange(minX, maxX, padding=0)    
+
+        for graph in self.graphs:
+            graph.setXRange(minX, maxX, padding=0)  
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

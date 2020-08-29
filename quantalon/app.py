@@ -1,7 +1,7 @@
 from . import __title__ as title
 from . import __version__ as version
 
-from .ui import Ui_MainWindow
+from .ui2 import CustomWindow
 
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import Qt
@@ -32,7 +32,7 @@ def main():
 
     app = QtWidgets.QApplication(sys.argv)
     main = MainWindow()
-    ui = Ui_MainWindow()
+    ui = CustomWindow()
     ui.setupUi(main)
     main.show()
     sys.exit(app.exec())
