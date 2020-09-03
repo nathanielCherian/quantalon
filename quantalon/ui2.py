@@ -10,7 +10,7 @@ import numpy as np
 from finta import TA
 
 from .test import Ui_MainWindow
-from .lib.candlesticks import CandlestickItem
+from .lib.candlesticks import CandlestickItem, VolumeItem
 
 class CustomWindow(Ui_MainWindow):
 
@@ -38,23 +38,29 @@ class CustomWindow(Ui_MainWindow):
 
         try:
             self.ohlc = pd.read_csv(filename[0])
-            self.ohlc.rename(columns={"Close":"close", "Open":"open", "Low":"low", "High":"high"}, inplace=True)
+            self.ohlc.rename(columns={"Close":"close", "Open":"open", "Low":"low", "High":"high", "Volume":"volume"}, inplace=True)
 
             gw = self.create_plot()
 
             self.plot(gw, [i for i in range(len(self.ohlc))], np.array(self.ohlc['close']), "security")
 
+            self.line_graph = gw
 
+            item = CandlestickItem(self.ohlc)
+            itemv = VolumeItem(self.ohlc)
+
+            self.candlestick_items = (item, itemv)
 
             # Data must be loaded before check box becomes active
             self.linkRegionsCheckBox.toggled.connect(self.link_regions_checkbox)
+            self.candlestickCheckBox.toggled.connect(self.candlestick_checkbox)
 
         except Exception as e:
             self.ohlc = None
             print(e)
 
 
-    def create_plot(self):
+    def create_plot(self, append=True):
         graphWidget = pg.PlotWidget(self.centralwidget)
         graphWidget.setBackground('w')
         graphWidget.showGrid(x=True, y=True)
@@ -65,8 +71,9 @@ class CustomWindow(Ui_MainWindow):
 
         #graphWidget.sigRangeChanged.connect(lambda x, y: self.region_updated(x, y, graphWidget))
 
-        self.verticalLayout_3.addWidget(graphWidget)
-        self.graphs.append(graphWidget)
+        if append:
+            self.verticalLayout_3.addWidget(graphWidget)
+            self.graphs.append(graphWidget)
 
         return graphWidget
         
@@ -87,10 +94,15 @@ class CustomWindow(Ui_MainWindow):
         print("add_TA")
 
         if self.indicatorBox.currentText() == "candle":
+
+
             item = CandlestickItem(self.ohlc)
+            itemv = VolumeItem(self.ohlc)
             gw = self.create_plot()
             gw.addItem(item)
-            
+            gw.addItem(itemv)
+
+
 
 
 
@@ -127,6 +139,25 @@ class CustomWindow(Ui_MainWindow):
 
             else:
                 self.graphs[0].removeItem(self.region)
+
+        except Exception as e:
+            print(e)
+
+
+    def candlestick_checkbox(self):
+        print("candlestick_checkbox ", self.candlestickCheckBox.isChecked())
+
+        try:
+            print(self.graphs[0]==self.line_graph)
+            if self.candlestickCheckBox.isChecked():
+
+                self.graphs[0].clear()
+                self.graphs[0].addItem(self.candlestick_items[0])
+                self.graphs[0].addItem(self.candlestick_items[1])
+
+            else:
+                self.graphs[0].clear()
+                self.plot(self.graphs[0], [i for i in range(len(self.ohlc))], np.array(self.ohlc['close']), "security")
 
         except Exception as e:
             print(e)

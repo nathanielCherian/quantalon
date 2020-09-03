@@ -40,6 +40,13 @@
       </item>
      </layout>
     </item>
+    <item row="2" column="0">
+     <widget class="QCheckBox" name="checkBox">
+      <property name="text">
+       <string>Link Regions</string>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0">
      <widget class="QScrollArea" name="scrollArea">
       <property name="widgetResizable">
@@ -51,7 +58,7 @@
          <x>0</x>
          <y>0</y>
          <width>888</width>
-         <height>360</height>
+         <height>337</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -71,10 +78,10 @@
       </widget>
      </widget>
     </item>
-    <item row="2" column="0">
-     <widget class="QCheckBox" name="checkBox">
+    <item row="3" column="0">
+     <widget class="QCheckBox" name="checkBox_2">
       <property name="text">
-       <string>Link Regions</string>
+       <string>Candlestick</string>
       </property>
      </widget>
     </item>
