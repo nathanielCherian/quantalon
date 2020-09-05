@@ -9,12 +9,14 @@ import numpy as np
 
 from finta import TA
 
-from .test import Ui_MainWindow
+from .screen import Ui_MainWindow
 from .lib.candlesticks import CandlestickItem, VolumeItem
+from .lib.indicators import IndicatorFunctions
 
 class CustomWindow(Ui_MainWindow):
 
     graphs = []
+    
 
     def setupUi(self, MainWindow):
         super().setupUi(MainWindow)
@@ -55,13 +57,16 @@ class CustomWindow(Ui_MainWindow):
             self.linkRegionsCheckBox.toggled.connect(self.link_regions_checkbox)
             self.candlestickCheckBox.toggled.connect(self.candlestick_checkbox)
 
+            self.indicatorFunctions = IndicatorFunctions(self.create_plot, self.plot, self.ohlc)
+
         except Exception as e:
             self.ohlc = None
             print(e)
 
 
-    def create_plot(self, append=True):
+    def create_plot(self, append=True, crosshair=True):
         graphWidget = pg.PlotWidget(self.centralwidget)
+        graphWidget.setMinimumHeight(180)
         graphWidget.setBackground('w')
         graphWidget.showGrid(x=True, y=True)
         #graphWidget.enableAutoRange(axis='y')
@@ -69,7 +74,12 @@ class CustomWindow(Ui_MainWindow):
         
         graphWidget.setLimits(xMin=0, xMax=len(self.ohlc)+5)
 
-        #graphWidget.sigRangeChanged.connect(lambda x, y: self.region_updated(x, y, graphWidget))
+
+        if crosshair:
+            vLine = pg.InfiniteLine(angle=90, movable=False)
+            hLine = pg.InfiniteLine(angle=0, movable=False)
+            graphWidget.addItem(vLine, ignoreBounds=True)
+            graphWidget.addItem(hLine, ignoreBounds=True)
 
         if append:
             self.verticalLayout_3.addWidget(graphWidget)
@@ -90,33 +100,24 @@ class CustomWindow(Ui_MainWindow):
         widget.plot(x, y, name=plotname, pen=pen)
 
 
+
     def add_TA(self):
         print("add_TA")
-
-        if self.indicatorBox.currentText() == "candle":
-
-
-            item = CandlestickItem(self.ohlc)
-            itemv = VolumeItem(self.ohlc)
-            gw = self.create_plot()
-            gw.addItem(item)
-            gw.addItem(itemv)
-
-
-
-
 
         try:
             
             selection = self.indicatorBox.currentText()
-            transformed_data = getattr(TA, selection)(self.ohlc)
+            
+            """transformed_data = getattr(TA, selection)(self.ohlc)
             transformed_data.dropna(inplace=True)
 
             time = transformed_data.index
             price = np.array(transformed_data)
 
             gw = self.create_plot()
-            self.plot(gw, time, price, selection, pen=pg.mkPen(color=(108, 189, 128)), width=3.0)
+            self.plot(gw, time, price, selection, pen=pg.mkPen(color=(108, 189, 128)), width=3.0)"""
+
+            gw = self.indicatorFunctions.indicator_method(selection)
 
         except Exception as e:
             print(e)
