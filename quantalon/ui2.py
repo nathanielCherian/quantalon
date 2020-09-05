@@ -12,6 +12,7 @@ from finta import TA
 from .screen import Ui_MainWindow
 from .lib.candlesticks import CandlestickItem, VolumeItem
 from .lib.indicators import IndicatorFunctions
+from .lib.plot import CustomPlotWidget
 
 class CustomWindow(Ui_MainWindow):
 
@@ -65,7 +66,7 @@ class CustomWindow(Ui_MainWindow):
 
 
     def create_plot(self, append=True, crosshair=True):
-        graphWidget = pg.PlotWidget(self.centralwidget)
+        graphWidget = CustomPlotWidget(self.centralwidget)
         graphWidget.setMinimumHeight(180)
         graphWidget.setBackground('w')
         graphWidget.showGrid(x=True, y=True)
@@ -87,6 +88,8 @@ class CustomWindow(Ui_MainWindow):
 
         return graphWidget
         
+
+
     def region_updated(self):
         self.region.setZValue(10)
         minX, maxX = self.region.getRegion()

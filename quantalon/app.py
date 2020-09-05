@@ -24,8 +24,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.resize(*self.size)
 
     def contextMenuEvent(self, event):
-        print("Context menu event!")
-        super(MainWindow, self).contextMenuEvent(event)
+        #print("Context menu event!")
+        #super(MainWindow, self).contextMenuEvent(event)
+        pass
 
 
 def main():
